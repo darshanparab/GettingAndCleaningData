@@ -13,7 +13,7 @@ Repository contains below mentioned files:
 3. It will create the same if not present already and download the dataset zip file in it.
 4. Once zip file is present of the disk, it will extract the content of the zip file.
 5. Further, required data is ingested into the script and required processing is carried out to obtain a tidy dataset.
-6. Upon successful execution, it will store the tidy dataset in CSV file with name "tidy_har.csv" in the working directory.
+6. Upon successful execution, it will store the tidy dataset in text file with name "tidy_har.txt" in the working directory.
 
 ## CodeBook.md
 This file carries detailed data processing steps in order to obtain a desired tidy set.

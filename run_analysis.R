@@ -99,6 +99,6 @@ tidy_har <-
   spread("variable","average")
 
 # Export tidy dataset to CSV
-tidy_har %>% write.csv("tidy_har.csv", row.names = FALSE)
+tidy_har %>% write.table("tidy_har.txt", row.names = FALSE)
 
 #----------------------------- Solution ends here ---------------------------------

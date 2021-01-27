@@ -49,4 +49,4 @@ to column names of variabel **har**.
     4. Summarize the grouped data and apply mean function on *values* column. Store results in
     *average* column.
     5. Apply spread function on columns *variable* and *average* to obtain the desired tidy dataset.
-    6. Store the tidy dataset in CSV file
+    6. Store the tidy dataset in text file
