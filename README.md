@@ -39,7 +39,7 @@ assign column name as **subject**.
 3. Get the list of columns for variable **har**.
 4. Merge **har** and **activity_names** based on *activity_id* column.
 5. Select data from columns extracted in setp 2 along with subject and activity_name from variable **har** and store it in the variable **har**.
-5. Using below references from *feature_info.txt* create descriptive names for column names
+5. Using references from *feature_info.txt* create descriptive names for column names
 extracted in step 3
 6. Store descriptive column names in variable **descriptive_variable_names** and 
 append *subject* and *activity.name* to the beginning of **descriptive_column_names** and
