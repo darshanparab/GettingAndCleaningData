@@ -1,52 +1,343 @@
-# Codebook
-## Data pre-processing
+Feature Selection 
+=================
 
-1. In the directory where r_analysis.R script is stored, referred to as root directory
-henceforth, create a directory with name "data".
-2. Download the zip file containing source data from [here](https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip) and store it under data folder as Dataset.zip.
-3. Extract the contents of Dataset.zip. This will extract a folder "UCI HAR Dataset"
-4. Read features names from file data/UCI HAR Dataset/features.txt into variable
-**features** an name the columns as id and name.
-5. Read train feature data set from file *data/UCI HAR Dataset/train/X_train.txt* into variable **train_features_dataset** and assign column names using **name** column of feature variable.
-6. Read sequence of activities for train data set from file data/UCI HAR Dataset/train/y_train.txt into variable **train_activity_dataset** and
-assign column name as **activity_id**.
-7. Read sequence of subjects for train data set from file data/UCI HAR Dataset/train/subject_train.txt into variable **train_subjects_dataset** and
-assign column name as **subject**.
-8. Read test feature data set from file data/UCI HAR Dataset/test/X_test.txt and
-store it in variable **test_features_dataset** and assign column names using **name** column of feature variable.
-9. Read sequence of activities for train data set from file data/UCI HAR Dataset/test/y_test.txt into variable **test_activity_dataset** and
-assign column name as **activity_id**.
-10. Read sequence of subjects for test data set from file data/UCI HAR Dataset/train/subject_test.txt into variable **test_subjects_dataset** and
-assign column name as **subject**.
-11. Read activity names from file data/UCI HAR Dataset/activity_labels.txt into variable
-**activity_names** and assign column names as activity_id and activity_name.
-12. Create a training dataset by merging train_features_dataset, train_activity_dataset and train_subjects_dataset using cbind.
-13. Create a test dataset by merging test_features_dataset, test_activity_dataset and test_subjects_dataset using cbind.
+The features selected for this database come from the accelerometer and gyroscope 3-axial raw signals tAcc-XYZ and tGyro-XYZ. These time domain signals (prefix 't' to denote time) were captured at a constant rate of 50 Hz. Then they were filtered using a median filter and a 3rd order low pass Butterworth filter with a corner frequency of 20 Hz to remove noise. Similarly, the acceleration signal was then separated into body and gravity acceleration signals (tBodyAcc-XYZ and tGravityAcc-XYZ) using another low pass Butterworth filter with a corner frequency of 0.3 Hz. 
 
-## Solution implementation
-1. Merge training dataset and test dataset into variable ***har*** using rbind.
-2. Extract columns containing mean and standard deviation for each measurements along with subject and activity_id columns.
-3. Select data from columns extracted in above step from variable **har** and store it in the variable **har**.
-4. To append descriptive activity names to the dataset, merge variable **activity_names** with **har** using column activity_id.
-5. Get the list of columns for variable **har**.
-5. Using below references from *feature_info.txt* create descriptive names for columns in the same order
-that we got for column names in above step.
-- t : time domain  
-- f : frequesncy domain  
-- BodyAccMagnitude : Magnitude of linear acceleration from accelerometer  
-- GravityAccMag : Magnitude of gravity acceleration  from accelerometer  
-- BodyGyroMag : Magnitude of angular velocity from gyroscope  
-- BodyAccJerkMag : Magnitude of jerk in linear acceleration  
-- BodyGyroJerkMag : Magnitude of jerk in angular velocity  
-- mean : mean of measurement  
-- std : standard deviation of measurement  
-6. Store descriptive column names in variable **descriptive_variable_names** and assing this variable
-to column names of variabel **har**.
-7. to create a tidy dataset:
-    1. Select all the columns from variable **har** except *activity_id*.
-    2. Using gather function merge data from all the feature columns into *variable* and *values* columns. *variable* column stores a feature column name (key parameter for gather) and *values* column stores value of respective feature(value parameter for gather). exclude *subject* and *activity_name* columns while applying gather function.
-    3. Group the data by *subject*, *activity_name* and *variable* columns.
-    4. Summarize the grouped data and apply mean function on *values* column. Store results in
-    *average* column.
-    5. Apply spread function on columns *variable* and *average* to obtain the desired tidy dataset.
-    6. Store the tidy dataset in text file
+Subsequently, the body linear acceleration and angular velocity were derived in time to obtain Jerk signals (tBodyAccJerk-XYZ and tBodyGyroJerk-XYZ). Also the magnitude of these three-dimensional signals were calculated using the Euclidean norm (tBodyAccMag, tGravityAccMag, tBodyAccJerkMag, tBodyGyroMag, tBodyGyroJerkMag). 
+
+Finally a Fast Fourier Transform (FFT) was applied to some of these signals producing fBodyAcc-XYZ, fBodyAccJerk-XYZ, fBodyGyro-XYZ, fBodyAccJerkMag, fBodyGyroMag, fBodyGyroJerkMag. (Note the 'f' to indicate frequency domain signals). 
+
+These signals were used to estimate variables of the feature vector for each pattern:  
+'-XYZ' is used to denote 3-axial signals in the X, Y and Z directions.
+
+tBodyAcc-XYZ
+tGravityAcc-XYZ
+tBodyAccJerk-XYZ
+tBodyGyro-XYZ
+tBodyGyroJerk-XYZ
+tBodyAccMag
+tGravityAccMag
+tBodyAccJerkMag
+tBodyGyroMag
+tBodyGyroJerkMag
+fBodyAcc-XYZ
+fBodyAccJerk-XYZ
+fBodyGyro-XYZ
+fBodyAccMag
+fBodyAccJerkMag
+fBodyGyroMag
+fBodyGyroJerkMag
+
+The set of variables that were estimated from these signals are: 
+
+mean(): Mean value
+std(): Standard deviation
+mad(): Median absolute deviation 
+max(): Largest value in array
+min(): Smallest value in array
+sma(): Signal magnitude area
+energy(): Energy measure. Sum of the squares divided by the number of values. 
+iqr(): Interquartile range 
+entropy(): Signal entropy
+arCoeff(): Autorregresion coefficients with Burg order equal to 4
+correlation(): correlation coefficient between two signals
+maxInds(): index of the frequency component with largest magnitude
+meanFreq(): Weighted average of the frequency components to obtain a mean frequency
+skewness(): skewness of the frequency domain signal 
+kurtosis(): kurtosis of the frequency domain signal 
+bandsEnergy(): Energy of a frequency interval within the 64 bins of the FFT of each window.
+angle(): Angle between to vectors.
+
+Additional vectors obtained by averaging the signals in a signal window sample. These are used on the angle() variable:
+
+gravityMean
+tBodyAccMean
+tBodyAccJerkMean
+tBodyGyroMean
+tBodyGyroJerkMean
+
+The complete list of variables of each feature vector is available in 'features.txt'
+
+--- Codebook updates for solution starts here ---
+
+Features containing mean and standard deviation for all the measurements are selected
+along with subject and activity details:
+
+subject
+activity_id
+activity_name
+tBodyAcc-mean()-X
+tBodyAcc-mean()-Y
+tBodyAcc-mean()-Z
+tBodyAcc-std()-X
+tBodyAcc-std()-Y
+tBodyAcc-std()-Z
+tGravityAcc-mean()-X
+tGravityAcc-mean()-Y
+tGravityAcc-mean()-Z
+tGravityAcc-std()-X
+tGravityAcc-std()-Y
+tGravityAcc-std()-Z
+tBodyAccJerk-mean()-X
+tBodyAccJerk-mean()-Y
+tBodyAccJerk-mean()-Z
+tBodyAccJerk-std()-X
+tBodyAccJerk-std()-Y
+tBodyAccJerk-std()-Z
+tBodyGyro-mean()-X
+tBodyGyro-mean()-Y
+tBodyGyro-mean()-Z
+tBodyGyro-std()-X
+tBodyGyro-std()-Y
+tBodyGyro-std()-Z
+tBodyGyroJerk-mean()-X
+tBodyGyroJerk-mean()-Y
+tBodyGyroJerk-mean()-Z
+tBodyGyroJerk-std()-X
+tBodyGyroJerk-std()-Y
+tBodyGyroJerk-std()-Z
+tBodyAccMag-mean()
+tBodyAccMag-std()
+tGravityAccMag-mean()
+tGravityAccMag-std()
+tBodyAccJerkMag-mean()
+tBodyAccJerkMag-std()
+tBodyGyroMag-mean()
+tBodyGyroMag-std()
+tBodyGyroJerkMag-mean()
+tBodyGyroJerkMag-std()
+fBodyAcc-mean()-X
+fBodyAcc-mean()-Y
+fBodyAcc-mean()-Z
+fBodyAcc-std()-X
+fBodyAcc-std()-Y
+fBodyAcc-std()-Z
+fBodyAccJerk-mean()-X
+fBodyAccJerk-mean()-Y
+fBodyAccJerk-mean()-Z
+fBodyAccJerk-std()-X
+fBodyAccJerk-std()-Y
+fBodyAccJerk-std()-Z
+fBodyGyro-mean()-X
+fBodyGyro-mean()-Y
+fBodyGyro-mean()-Z
+fBodyGyro-std()-X
+fBodyGyro-std()-Y
+fBodyGyro-std()-Z
+fBodyAccMag-mean()
+fBodyAccMag-std()
+fBodyBodyAccJerkMag-mean()
+fBodyBodyAccJerkMag-std()
+fBodyBodyGyroMag-mean()
+fBodyBodyGyroMag-std()
+fBodyBodyGyroJerkMag-mean()
+fBodyBodyGyroJerkMag-std()
+
+
+To obtain final dataframe, above features are assigned descriptive names as below
+and activity_id column is removed. Mean of all the feature for each subject per activity
+is calculated.
+
+subject
+  Unique ID of the person undergone the process
+  
+activity_name
+  Name of the activity for which measurements are taken
+  
+time.domain.linear.acceleration.mean.x
+  Mean of the linear acceleration along X axis in time domain
+  
+time.domain.linear.acceleration.mean.y
+  Mean of the linear acceleration along Y axis in time domain
+  
+time.domain.linear.acceleration.mean.z
+  Mean of the linear acceleration along Z axis in time domain
+  
+time.domain.linear.acceleration.standard.deviation.x
+  Standard deviation of the linear acceleration along X axis in time domain
+  
+time.domain.linear.acceleration.standard.deviation.y
+  Standard deviation of the linear acceleration along Y axis in time domain
+  
+time.domain.linear.acceleration.standard.deviation.z
+  Standard deviation of the linear acceleration along Z axis in time domain
+  
+time.domain.gravity.acceleration.mean.x
+  Mean of the gravity acceleration along X axis in time domain
+  
+time.domain.gravity.acceleration.mean.y
+  Mean of the gravity acceleration along y axis in time domain
+  
+time.domain.gravity.acceleration.mean.z
+  Mean of the gravity acceleration along Z axis in time domain
+  
+time.domain.gravity.acceleration.standard.deviation.x
+  Standard Deviation of the gravity acceleration along X axis in time domain
+  
+time.domain.gravity.acceleration.standard.deviation.y
+  Standard Deviation of the gravity acceleration along Y axis in time domain
+  
+time.domain.gravity.acceleration.standard.deviation.z
+  Standard Deviation of the gravity acceleration along Z axis in time domain
+  
+time.domain.linear.acceleration.jerk.mean.x
+  Mean of jerk in linear acceleration along X axis in time domain
+  
+time.domain.linear.acceleration.jerk.mean.y
+  Mean of jerk in linear acceleration along Y axis in time domain
+  
+time.domain.linear.acceleration.jerk.mean.z
+  Mean of jerk in linear acceleration along Z axis in time domain
+  
+time.domain.linear.acceleration.jerk.standard.deviation.x
+  Standard Deviation of jerk in linear acceleration along X axis in time domain
+  
+time.domain.linear.acceleration.jerk.standard.deviation.y
+  Standard Deviation of jerk in linear acceleration along Y axis in time domain
+  
+time.domain.linear.acceleration.jerk.standard.deviation.z
+  Standard Deviation of jerk in linear acceleration along Z axis in time domain
+  
+time.domain.angular.velocity.mean.x
+  Mean of the angular velocity along X axis in time domain
+  
+time.domain.angular.velocity.mean.y
+  Mean of the angular velocity along Y axis in time domain
+  
+time.domain.angular.velocity.mean.z
+  Mean of the angular velocity along Z axis in time domain
+  
+time.domain.angular.velocity.standard.deviation.x
+  Standard Deviation of the angular velocity along X axis in time domain
+  
+time.domain.angular.velocity.standard.deviation.y
+  Standard Deviation of the angular velocity along y axis in time domain
+  
+time.domain.angular.velocity.standard.deviation.z
+  Standard Deviation of the angular velocity along Z axis in time domain
+  
+time.domain.angular.velocity.jerk.mean.x
+  Mean of jerk in angular velocity along X axis in time domain
+  
+time.domain.angular.velocity.jerk.mean.y
+  Mean of jerk in angular velocity along Y axis in time domain
+  
+time.domain.angular.velocity.jerk.mean.z
+  Mean of jerk in angular velocity along Z axis in time domain
+  
+time.domain.angular.velocity.jerk.standard.deviation.x
+  Standard Deviation of jerk in angular velocity along X axis in time domain
+
+time.domain.angular.velocity.jerk.standard.deviation.y
+  Standard Deviation of jerk in angular velocity along X axis in time domain
+
+time.domain.angular.velocity.jerk.standard.deviation.z
+  Standard Deviation of jerk in angular velocity along Z axis in time domain
+  
+time.domain.linear.acceleration.magnitude.mean
+  Mean of magnitude of linear acceleration in time domain
+
+time.domain.linear.acceleration.magnitude.standard.deviation
+  Standard Deviation of magnitude of linear acceleration in time domain
+  
+time.domain.gravity.acceleration.magnitude.mean
+  Mean of magnitude of gravity acceleration in time domain
+  
+time.domain.gravity.acceleration.magnitude.standard.deviation
+  Standard Deviaton of magnitude of linear acceleration in time domain
+ 
+time.domain.linear.acceleration.jerk.magnitude.mean
+  Mean of jerk in magnitude of linear acceleration in time domain
+  
+time.domain.linear.acceleration.jerk.magnitude.standard.deviation
+  Standard Deviation of jerk in magnitude of linear acceleration
+  
+time.domain.angular.velocity.magnitude.mean
+  Mean of magnitude of angular velocity in time domain
+  
+time.domain.angular.velocity.magnitude.standard.deviation
+  Standard Deviation of magnitude of angular velocity in time domain
+
+time.domain.angular.velocity.jerk.magnitude.mean
+  Mean of magnitude of jerk in angular velocity in time domain
+  
+time.domain.angular.velocity.jerk.magnitude.standard.deviation
+  Standard Deviation of jerk in magnitude of angular velocity in time domain
+
+frequency.domain.linear.acceleration.mean.x
+  Mean of linear acceleration along X axis in frequency domain
+
+frequency.domain.linear.acceleration.mean.y
+  Mean of linear acceleration along Y axis in frequency domain
+  
+frequency.domain.linear.acceleration.mean.z
+  Mean of linear acceleration along Z axis in frequency domain
+  
+frequency.domain.linear.acceleration.standard.deviation.x
+  Standard Deviation of linear acceleration along X axis in frequency domain
+  
+frequency.domain.linear.acceleration.standard.deviation.y
+  Standard Deviation of linear acceleration along Y axis in frequency domain
+  
+frequency.domain.linear.acceleration.standard.deviation.z
+  Standard Deviation of linear acceleration along Z axis in frequency domain
+  
+frequency.domain.linear.acceleration.jerk.mean.x
+  Mean of jerk in linear acceleration along X axis in frequency domain
+  
+frequency.domain.linear.acceleration.jerk.mean.y
+  Mean of jerk in linear acceleration along Y axis in frequency domain
+  
+frequency.domain.linear.acceleration.jerk.mean.z
+  Mean of jerk in linear acceleration along Z axis in frequency domain
+  
+frequency.domain.linear.acceleration.jerk.standard.deviation.x
+  Standard Deviation of jerk in linear acceleration along X axis in frequency domain
+  
+frequency.domain.linear.acceleration.jerk.standard.deviation.y
+  Standard Deviation of jerk in linear acceleration along Y axis in frequency domain
+  
+frequency.domain.linear.acceleration.jerk.standard.deviation.z
+  Standard Deviation of jerk in linear acceleration along Z axis in frequency domain
+  
+frequency.domain.angular.velocity.mean.x
+  Mean of angular velocity along X axis in frequency domain
+  
+frequency.domain.angular.velocity.mean.y
+  Mean of angular velocity along Y axis in frequency domain
+  
+frequency.domain.angular.velocity.mean.z
+  Mean of angular velocity along Z axis in frequency domain
+  
+frequency.domain.angular.velocity.standard.deviation.x
+  Standard Deviation of angular velocity along X axis in frequency domain
+  
+frequency.domain.angular.velocity.standard.deviation.y
+  Standard Deviation of angular velocity along Y axis in frequency domain
+  
+frequency.domain.angular.velocity.standard.deviation.z
+  Standard Deviation of angular velocity along Z axis in frequency domain
+  
+frequency.domain.linear.acceleration.magnitude.mean
+  Mean of the magnitude of linear acceleration in frequency domain
+  
+frequency.domain.linear.acceleration.magnitude.standard.deviation
+  Standard Deviation of the magnitude of linear acceleration in frequency domain
+  
+frequency.domain.linear.acceleration.jerk.magnitude.mean
+  Mean of the jerk in magnitude of linear acceleration in frequency domain
+  
+frequency.domain.linear.acceleration.jerk.magnitude.standard.deviation
+  Standard Deviation of the jerk in magnitude of linear acceleration in frequency domain
+  
+frequency.domain.angular.velocity.magnitude.mean
+  Mean of the magnitude of angular velocity in frequency domain
+  
+frequency.domain.angular.velocity.magnitude.standard.deviation
+  Standard Deviation of the magnitude of angular velocity in frequency domain
+
+frequency.domain.angular.velocity.jerk.magnitude.mean
+  Mean of the magnitude of jerk in the angular velocity in frequency domain
+  
+frequency.domain.angular.velocity.jerk.magnitude.standard.deviation
+  Standard Deviation of the magnitude of jerk in the angular velocity in frequency domain

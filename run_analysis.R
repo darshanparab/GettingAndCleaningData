@@ -38,8 +38,10 @@ test_subjects = paste(root,"data","UCI HAR Dataset","test","subject_test.txt", s
 features <- read.table(paste(data_dir,"UCI HAR Dataset", "features.txt",sep = "/"), col.names = c("id","name"))
 
 # Read train and test datasets
-train_features_dataset <- read.table(train_features, col.names = features$name)
-test_features_dataset <- read.table(test_features, col.names = features$name)
+train_features_dataset <- read.table(train_features)
+test_features_dataset <- read.table(test_features)
+names(train_features_dataset) <- features$name
+names(test_features_dataset) <- features$name
 
 # Read train and test activity sequence
 train_activity_dataset <- read.table(train_activity, col.names = c("activity_id"))
@@ -57,46 +59,32 @@ har <- rbind (cbind(train_subjects_dataset, train_activity_dataset,train_feature
               cbind(test_subjects_dataset, test_activity_dataset, test_features_dataset))
 
 # 2. Extracts only the measurements on the mean and standard deviation for each measurement.
-selectedFeatures <- grep("(.*(mean|std)\\.\\.|subject|activity_id)$",names(har), value = TRUE)
-har <- select(har, selectedFeatures)
+selectedFeatures <- grep("(.*(mean|std)\\(\\)\\-?[XYZ]?)$",names(har), value = TRUE)
+har <- select(har, c("subject","activity_id",selectedFeatures))
 
 # 3. Uses descriptive activity names to name the activities in the data set
-har <- merge(har,activity_names, by = "activity_id")
+har <- har %>% merge(activity_names, by="activity_id") %>% select(subject, activity_name, selectedFeatures)
 
 # 4. Appropriately labels the data set with descriptive variable names. 
+descriptive_variable_names <- gsub("^t","time.domain.", selectedFeatures)
+descriptive_variable_names <- gsub("^f", "frequency.domain.", descriptive_variable_names)
+descriptive_variable_names <- gsub("\\.(Body){1,2}Acc", ".linear.acceleration.", descriptive_variable_names)
+descriptive_variable_names <- gsub("\\.GravityAcc", ".gravity.acceleration.", descriptive_variable_names)
+descriptive_variable_names <- gsub("\\.(Body){1,2}Gyro", ".angular.velocity.", descriptive_variable_names)
+descriptive_variable_names <- gsub("-mean\\(\\)-?", ".mean.", descriptive_variable_names)
+descriptive_variable_names <- gsub("-std\\(\\)-?", ".standard.deviation.", descriptive_variable_names)
+descriptive_variable_names <- gsub("Mag\\.", ".magnitude.", descriptive_variable_names)
+descriptive_variable_names <- gsub("\\.{2,}", ".", descriptive_variable_names)
+descriptive_variable_names <- gsub("\\.$", "", descriptive_variable_names)
+descriptive_variable_names <- tolower(descriptive_variable_names)
 
-descriptive_variable_names = c("activity_id",
-                               "subject",
-                               "time.domain.linear.acceleration.magnitude.mean",
-                               "time.domain.linear.acceleration.magnitude.standard.deviation",
-                               "time.domain.gravity.acceleration.magnitude.mean",
-                               "time.domain.gravity.acceleration.magnitude.standard.deviation",
-                               "time.domain.linear.acceleration.jerk.magnitude.mean",
-                               "time.domain.linear.acceleration.jerk.magnitude.standard.deviation",
-                               "time.domain.angular.velocity.magnitude.mean",
-                               "time.domain.angular.velocity.magnitude.standard.deviation",
-                               "time.domain.angular.velocity.jerk.magnitude.mean",
-                               "time.domain.angular.velocity.jerk.magnitude.standard.deviation",
-                               "frequency.domain.body.acceleration.magnitude.mean",
-                               "frequency.domain.body.acceleration.magnitude.standard.deviation",
-                               "frequency.domain.linear.acceleration.jerk.magnitude.mean",
-                               "frequency.domain.linear.acceleration.jerk.magnitude.standard.deviation",
-                               "frequency.domain.angular.velocity.magnitude.mean",
-                               "frequency.domain.angular.velocity.magnitude.standard.deviation",
-                               "frequency.domain.angular.velocity.jerk.magnitude.mean",
-                               "frequency.domain.angular.velocity.jerk.magnitude.standard.deviation",
-                               "activity_name"
-                               )
-names(har) <- descriptive_variable_names
+names(har) <- c("subject","activity.name", descriptive_variable_names)
 
 # 5. From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
 tidy_har <-
   har %>%
-  select(-activity_id) %>%
-  gather(variable,values,-c("subject","activity_name")) %>%
-  group_by(subject,activity_name,variable) %>%
-  summarize(average = mean(values)) %>%
-  spread("variable","average")
+  group_by(subject, activity.name) %>%
+  summarize(across(descriptive_variable_names, mean))
 
 # Export tidy dataset to CSV
 tidy_har %>% write.table("tidy_har.txt", row.names = FALSE)
